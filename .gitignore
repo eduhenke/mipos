@@ -49,3 +49,11 @@ timing
 *sopc_*
 PLLJ_PLLSPE_INFO.txt # The generated PLL specification file
 
+# Ignore ModelSim generated files
+*.mti
+*.mpf
+msim_transcript
+transcript
+vsim.wlf
+work
+
