@@ -21,7 +21,8 @@ architecture beh of mipos is
 	-- Control signals
 	signal reg_dst, reg_write, branch,
 		mem_read, mem_to_reg, mem_write,
-		alu_op, alu_src : std_logic;
+		alu_src : std_logic;
+	signal alu_op : std_logic_vector(1 downto 0);
 	signal reg1, reg2: std_logic_vector(31 downto 0);
 	signal wr_data: std_logic_vector(31 downto 0);
 	signal wr_reg: std_logic_vector(4 downto 0);
@@ -55,10 +56,11 @@ architecture beh of mipos is
 
 	component control is
 		port (
-		opcode: in std_logic_vector(5 downto 0);
-		reg_dst, reg_write, branch,
-		mem_read, mem_to_reg, mem_write,
-		alu_op, alu_src : out std_logic
+			opcode: in std_logic_vector(5 downto 0);
+			reg_dst, reg_write, branch,
+			mem_read, mem_to_reg, mem_write,
+			alu_src : out std_logic;
+			alu_op : out std_logic_vector(1 downto 0)
 	);
 	end component;
 
@@ -73,7 +75,9 @@ architecture beh of mipos is
 	end component;
 
 begin
-	PROG_CTR: PC port map (clk, rst, next_address, curr_address); 
+	PROG_CTR: PC port map (
+		clk, rst, next_address, curr_address
+	); 
 
 	PC_ADDER: adder
 		port map (

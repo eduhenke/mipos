@@ -51,6 +51,7 @@ PLLJ_PLLSPE_INFO.txt # The generated PLL specification file
 # Ignore ModelSim generated files
 *.mti
 *.mpf
+*.vstf
 msim_transcript
 transcript
 vsim.wlf
