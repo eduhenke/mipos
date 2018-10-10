@@ -27,8 +27,10 @@ begin
 	reg2 <= regs(to_integer(unsigned(sel_reg2)));
 	process(wr_en, wr_reg, wr_data)
 	begin
-		if wr_en='1' then
+		if wr_en='1' and unsigned(wr_reg)>0 then -- don't write to $zero register
 			regs(to_integer(unsigned(wr_reg))) <= wr_data;
+		else
+			regs(0) <= (others=>'0');
 		end if;
 	end process;
 end architecture;
