@@ -2,7 +2,7 @@ from parser.data.instructions import instructions
 from parser.data.registers import registers_dict
 
 print('Add your SINGLE assembly line(like: \'sub $t0, $t1, $t2\') here:')
-assembly_line = input()
+assembly_line = 'add $t0, $t1, $t2'
 
 
 token_delimiter = ' '
