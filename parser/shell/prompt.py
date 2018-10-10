@@ -2,6 +2,12 @@ from cmd import Cmd
 from parser.data.instructions import instructions
 from parser.data.registers import registers_dict
 
+def print_instruction(instr):
+    print('-------------')
+    print('Instruction in Binary:', instr)
+    print('Instruction in Decimal:', int(instr, 2))
+
+
 class AssemblerPrompt(Cmd):
     def __init__(self):
         super(AssemblerPrompt, self).__init__()
@@ -40,5 +46,6 @@ class AssemblerPrompt(Cmd):
             ['help_'+str(k) for k in self.instructions.keys()] + \
             ['complete_'+str(k) for k in self.instructions.keys()]
  
-p = AssemblerPrompt()
-p.cmdloop()
+if __name__ == "__main__":
+    p = AssemblerPrompt()
+    p.cmdloop()
