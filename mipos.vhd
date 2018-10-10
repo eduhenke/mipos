@@ -26,8 +26,9 @@ architecture beh of mipos is
 	signal reg1, reg2: std_logic_vector(31 downto 0);
 	signal wr_data: std_logic_vector(31 downto 0);
 	signal wr_reg: std_logic_vector(4 downto 0);
-	signal wr_en: std_logic;
 	signal op: std_logic_vector(2 downto 0);
+	signal result: std_logic_vector(31 downto 0);
+	signal zero: std_logic;
 
 
 
@@ -73,6 +74,16 @@ architecture beh of mipos is
 		);
 	end component;
 
+	component ALU is
+		port (
+			a, b: in std_logic_vector(31 downto 0);
+			c: out std_logic_vector(31 downto 0);
+			zero: out std_logic;
+			op: in std_logic_vector(2 downto 0)
+		);
+	end component;
+
+	
 	component registers is
 		port (
 			sel_reg1, sel_reg2: in std_logic_vector(4 downto 0);
@@ -115,6 +126,14 @@ begin
 		alu_src => alu_src
 	);
 	
+	ALU_BLK : ALU port map (
+		a => reg1,
+		b => reg2, -- TODO: ALU mux
+		c => wr_data, -- TODO: ALU result mux
+		zero => zero,
+		op => op
+	);
+	
 	ALU_CONTROL_BLK : ALU_Control port map (
 		op => op,
 		ALU_op => alu_op,
@@ -122,7 +141,7 @@ begin
 	);
 
 
-	wr_reg <= instruction(20 downto 16) when reg_dst='1' else
+	wr_reg <= instruction(20 downto 16) when reg_dst='0' else
 				 instruction(15 downto 11);
 	REG_BLK : registers port map (
 		sel_reg1 => instruction(25 downto 21),
