@@ -5,8 +5,8 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.std_logic_arith.all;
-use ieee.std_logic_unsigned.all;
+use ieee.numeric_std.all;
+
 
 entity mipos is
 	port(
@@ -21,13 +21,21 @@ architecture beh of mipos is
 	-- Control signals
 	signal reg_dst, reg_write, branch,
 		mem_read, mem_to_reg, mem_write,
-		alu_src : std_logic;
-	signal alu_op : std_logic_vector(1 downto 0);
+		ALU_src : std_logic;
+	signal ALU_op : std_logic_vector(1 downto 0);
 	signal reg1, reg2: std_logic_vector(31 downto 0);
-	signal wr_data: std_logic_vector(31 downto 0);
+	signal wr_data: std_logic_vector(31 downto 0); -- for data memory
+	signal wr_reg_data: std_logic_vector(31 downto 0);
 	signal wr_reg: std_logic_vector(4 downto 0);
 	signal op: std_logic_vector(2 downto 0);
-	signal result: std_logic_vector(31 downto 0);
+	signal ALU_result: std_logic_vector(31 downto 0);
+	signal ALU_b_in: std_logic_vector(31 downto 0);
+	signal data_mem_out: std_logic_vector(31 downto 0);
+	signal opcode: std_logic_vector(5 downto 0); -- immediate for I-type instructions
+	signal rs: std_logic_vector(4 downto 0); -- immediate for I-type instructions
+	signal rt: std_logic_vector(4 downto 0); -- immediate for I-type instructions
+	signal immediate: std_logic_vector(15 downto 0); -- immediate for I-type instructions
+	signal immediate_ext: std_logic_vector(31 downto 0); -- immediate converted to 32-bits(sign extended)
 	signal zero: std_logic;
 
 
@@ -48,11 +56,21 @@ architecture beh of mipos is
 		);		
 	end component;
 	
-	component memory
+	component ROM
 		port (
-			address		: in std_logic_vector (9 DOWNTO 0); 
+			address		: in std_logic_vector (9 downto 0); 
 			clock		: in std_logic  := '1';
-			q		: out std_logic_vector (31 DOWNTO 0)
+			q		: out std_logic_vector (31 downto 0)
+		);
+	end component;
+	
+	component RAM
+		port (
+			address	: in std_logic_vector (9 downto 0);
+			clock	: in std_logic ;
+			data	: in std_logic_vector (31 downto 0);
+			wren	: in std_logic ;
+			q	: out std_logic_vector (31 downto 0)
 		);
 	end component;
 
@@ -61,8 +79,8 @@ architecture beh of mipos is
 			opcode: in std_logic_vector(5 downto 0);
 			reg_dst, reg_write, branch,
 			mem_read, mem_to_reg, mem_write,
-			alu_src : out std_logic;
-			alu_op : out std_logic_vector(1 downto 0)
+			ALU_src : out std_logic;
+			ALU_op : out std_logic_vector(1 downto 0)
 	);
 	end component;
 	
@@ -95,6 +113,11 @@ architecture beh of mipos is
 	end component;
 
 begin
+	opcode <= instruction(31 downto 26);
+	rs <= instruction(25 downto 21);
+	rt <= instruction(20 downto 16);
+	immediate <= instruction(15 downto 0);
+	
 	PROG_CTR: PC port map (
 		clk, rst, next_address, curr_address
 	); 
@@ -106,12 +129,21 @@ begin
 		c => next_address
 	);
 
-	ROM : memory port map (
+	INSTR_MEM : ROM port map (
 		-- the last two bits of the address are discarded so that the
-		-- +4 increment turns into a +1 increment to use the entire memory
+		-- +4 increment turns into a +1 increment to use the entire ROM
 		address	 => curr_address(11 downto 2),
 		clock	 => clk_mem,
 		q	 => instruction
+	);
+	
+	wr_data <= reg2;
+	DATA_MEM : RAM port map (
+			address => ALU_result(9 downto 0),
+			clock => clk_mem,
+			data => wr_data,
+			wren => mem_write,
+			q => data_mem_out
 	);
 
 	CONTROL_BLK : control port map (
@@ -122,33 +154,41 @@ begin
 		mem_read => mem_read,
 		mem_to_reg => mem_to_reg,
 		mem_write => mem_write,
-		alu_op => alu_op,
-		alu_src => alu_src
+		ALU_op => ALU_op,
+		ALU_src => ALU_src
 	);
 	
+	-- sign-extend
+	immediate_ext <= std_logic_vector(resize(signed(immediate), immediate_ext'length)); -- X"0000" & immediate;
+	ALU_b_in <= reg2 when ALU_src='0' else
+					immediate_ext;
+					
 	ALU_BLK : ALU port map (
 		a => reg1,
-		b => reg2, -- TODO: ALU mux
-		c => wr_data, -- TODO: ALU result mux
+		b => ALU_b_in,
+		c => ALU_result,
 		zero => zero,
 		op => op
 	);
 	
 	ALU_CONTROL_BLK : ALU_Control port map (
 		op => op,
-		ALU_op => alu_op,
+		ALU_op => ALU_op,
 		funct => instruction(5 downto 0)
 	);
 
 
 	wr_reg <= instruction(20 downto 16) when reg_dst='0' else
 				 instruction(15 downto 11);
+	wr_reg_data <= ALU_result when mem_to_reg='0' else
+				  data_mem_out;
+				 
 	REG_BLK : registers port map (
 		sel_reg1 => instruction(25 downto 21),
 		sel_reg2 => instruction(20 downto 16),
 		reg1 => reg1,
 		reg2 => reg2,
-		wr_data => wr_data,
+		wr_data =>  wr_reg_data,
 		wr_reg => wr_reg,
 		wr_en => reg_write
 	);
