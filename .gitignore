@@ -57,3 +57,5 @@ transcript
 vsim.wlf
 work
 
+# Python
+__pycache__

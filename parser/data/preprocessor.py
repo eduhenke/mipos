@@ -44,13 +44,13 @@ raw_instructions = {
     "sw": {"meaning": "Store Word", type: 'I', "opcode": '0x2B', "funct": 'NA' }
 }
 
-def update(d, k):
-    d[k]["opcode"] = bin(int(d[k]["opcode"], 16))[2:].zfill(6)
-    if d[k]["funct"] != "NA":
-        d[k]["funct"] = bin(int(d[k]["funct"], 16))[2:].zfill(6)
-    return d[k]
+def hex_to_bin(instr):
+    instr["opcode"] = bin(int(instr["opcode"], 16))[2:].zfill(6)
+    if instr["funct"] != "NA":
+        instr["funct"] = bin(int(instr["funct"], 16))[2:].zfill(6)
+    return instr
 
-parsed_instructions = {k: update(raw_instructions, k) for k in raw_instructions}
+parsed_instructions = {k: hex_to_bin(raw_instructions[k]) for k in raw_instructions}
 pp.pprint(parsed_instructions)
 
 # taken from http://www.cs.uwm.edu/classes/cs315/Bacon/Lecture/HTML/ch05s03.html
