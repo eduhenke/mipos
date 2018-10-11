@@ -3,13 +3,16 @@ from parser.io.file import to_mif
 
 print('Check your ROM.mif file')
 assembly = """
-noop
 addi $t0, $zero, 1
 addi $t1, $zero, 2
-add $t0, $t1, $t2
+addi $t3, $zero, 9
 noop
+add $t0, $t1, $t2
 add $t2, $t1, $t0
-j 2
+beq $t2, $t3, 2
+j 3
+addi $t0, $zero, 0
+noop
 """
 
 
