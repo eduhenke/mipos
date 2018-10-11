@@ -24,7 +24,8 @@ def assemble(assembly_line):
         instr_parts = [to_bin(0, 32)]
     elif instruction["type"] == 'R':
         raw_registers = tokens[1:]
-        bin_registers = lookup_registers(raw_registers)
+        bin_registers = lookup_registers(raw_registers) # rd, rs, rt
+        bin_registers.append(bin_registers.pop(0)) # rd, rs, rt => rs, rt, rd
         shift_amount = '00000' # TODO: not always '00000'
         #                              opcode	           rs, rt, rd      shift (shamt)	funct
         instr_parts = [instruction["opcode"], ' '.join(bin_registers), shift_amount, instruction["funct"]]

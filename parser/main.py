@@ -3,20 +3,24 @@ from parser.io.file import to_mif
 
 print('Check your ROM.mif file')
 assembly = """
-addi $t0, $zero, 1
-addi $t1, $zero, 2
-addi $t3, $zero, 9
-noop
-add $t0, $t1, $t2
-add $t2, $t1, $t0
-beq $t2, $t3, 2
-j 3
-addi $t0, $zero, 0
+addi $s3, $zero, 5 # i = 5
+addi $s4, $zero, 4 # j = 4
+
+addi $s1, $zero, 10 # b = 10
+addi $s2, $zero, 8  # c = 8
+
+slt $t0, $s3, $s4 # temp = a < j
+beq $t0, $zero, 2 # if(!temp)
+sub $s0, $s3, $s4 # then { a = b - c }
+j 9 
+add $s0, $s1, $s2 # else { a = b + c }
 noop
 """
 
 
-lines = assembly.splitlines()[1:]
+lines = assembly.splitlines()
+lines = [l.split("#")[0].strip() for l in lines]
+lines = list(filter(lambda line : line, lines))
 instructions = [assemble(line)["decimal"] for line in lines]
 print(instructions)
 to_mif(instructions)

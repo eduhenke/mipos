@@ -46,28 +46,35 @@ begin
 			--  sel_reg1 sel_reg2 wr_reg  wr_en   wr_data      reg1          reg2
 				("00000", "00000", "00000", '0', x"00000000", x"00000000", x"00000000"),
 			-- register 1 test
-				("00000", "00000", "00001", '1', x"10000001", x"00000000", x"00000000"),
-				("00001", "00001", "00000", '0', x"00000000", x"10000001", x"10000001"),
+				("00000", "00000", "00001", '1', x"00000001", x"00000000", x"00000000"),
+				("00001", "00001", "00000", '0', x"00000000", x"00000001", x"00000001"),
 			-- register 7 test
-				("00000", "00000", "00111", '1', x"70000007", x"00000000", x"00000000"),
-				("00111", "00111", "00000", '0', x"00000000", x"70000007", x"70000007"),
+				("00000", "00000", "00111", '1', x"00000007", x"00000000", x"00000000"),
+				("00111", "00111", "00000", '0', x"00000000", x"00000007", x"00000007"),
 			-- register 31 test
-				("00000", "00000", "11111", '1', x"31000031", x"00000000", x"00000000"),
-				("11111", "11111", "00000", '0', x"00000000", x"31000031", x"31000031"),
+				("00000", "00000", "11111", '1', x"00000031", x"00000000", x"00000000"),
+				("11111", "11111", "00000", '0', x"00000000", x"00000031", x"00000031"),
 				("00000", "00000", "00000", '0', x"00000000", x"00000000", x"00000000"),
 			-- register 1/7 test
-				("00001", "00111", "00000", '0', x"00000000", x"10000001", x"70000007")
+				("00001", "00111", "00000", '0', x"00000000", x"00000001", x"00000007"),
+			-- register 1 write and read test
+				("00001", "00000", "00001", '1', x"00000002", x"00000002", x"00000000"),
+				("00001", "00000", "00001", '0', x"00000000", x"00000002", x"00000000")
 		);
 	begin
-	--  Check each pattern.
-	for x in patterns'range loop
-		--  Set the inputs.
-		sel_reg1 <= patterns(x).sel_reg1;
-		sel_reg2 <= patterns(x).sel_reg2;
-		wr_reg <= patterns(x).wr_reg;
-		wr_en <= patterns(x).wr_en;
-		wr_data <= patterns(x).wr_data;
-		--  Wait for the results.
-		wait for 1 ns;
+		--  Check each pattern.
+		for x in patterns'range loop
+			--  Set the inputs.
+			sel_reg1 <= patterns(x).sel_reg1;
+			sel_reg2 <= patterns(x).sel_reg2;
+			wr_reg <= patterns(x).wr_reg;
+			wr_en <= patterns(x).wr_en;
+			wr_data <= patterns(x).wr_data;
+			--  Wait for the results.
+			wait for 1 ns;
+			assert reg1 = patterns(x).reg1 report "reg1 is not equal to test vector" severity error;
+			assert reg2 = patterns(x).reg2 report "reg2 is not equal to test vector" severity error;
+		end loop;
+		std.env.stop;
 	end process;
 end beh;
