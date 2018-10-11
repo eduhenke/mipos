@@ -17,9 +17,12 @@ end mipos;
 architecture beh of mipos is
 	signal curr_address: std_logic_vector(31 downto 0); -- Address of the instruction to run
 	signal next_address: std_logic_vector(31 downto 0); -- Next address to be loaded into PC
+	signal PC_added: std_logic_vector(31 downto 0); -- PC = PC + 4
+	signal beq_address: std_logic_vector(31 downto 0); -- beq $t0, $t1, 0x300
+	signal jump_address: std_logic_vector(31 downto 0); -- j 0x300
 	signal instruction: std_logic_vector(31 downto 0); -- Next address to be loaded into PC
 	-- Control signals
-	signal reg_dst, reg_write, branch,
+	signal reg_dst, reg_write, jump, branch,
 		mem_read, mem_to_reg, mem_write,
 		ALU_src : std_logic;
 	signal ALU_op : std_logic_vector(1 downto 0);
@@ -36,6 +39,7 @@ architecture beh of mipos is
 	signal rt: std_logic_vector(4 downto 0); -- immediate for I-type instructions
 	signal immediate: std_logic_vector(15 downto 0); -- immediate for I-type instructions
 	signal immediate_ext: std_logic_vector(31 downto 0); -- immediate converted to 32-bits(sign extended)
+	signal immediate_ext_shifted: std_logic_vector(31 downto 0); -- immediate converted to 32-bits(sign extended and shifted by 2-bits)
 	signal zero: std_logic;
 
 
@@ -77,7 +81,7 @@ architecture beh of mipos is
 	component control is
 		port (
 			opcode: in std_logic_vector(5 downto 0);
-			reg_dst, reg_write, branch,
+			reg_dst, reg_write, jump, branch,
 			mem_read, mem_to_reg, mem_write,
 			ALU_src : out std_logic;
 			ALU_op : out std_logic_vector(1 downto 0)
@@ -118,16 +122,27 @@ begin
 	rt <= instruction(20 downto 16);
 	immediate <= instruction(15 downto 0);
 	
+	immediate_ext_shifted <= immediate_ext(29 downto 0) & "00";
+	jump_address <= PC_added(31 downto 28) & instruction(25 downto 0) & "00";
+	next_address <= jump_address when jump='1' else
+						 beq_address when (branch='1' and zero='1') else
+						 PC_added;
 	PROG_CTR: PC port map (
 		clk, rst, next_address, curr_address
 	); 
 
-	PC_ADDER: adder
-		port map (
+	PC_ADDER: adder port map (
 		a => curr_address,
 		b => "00000000000000000000000000000100",
-		c => next_address
+		c => PC_added
 	);
+	
+	BEQ_ADDER: adder port map (
+		a => PC_added,
+		b => immediate_ext_shifted,
+		c => beq_address
+	);
+
 
 	INSTR_MEM : ROM port map (
 		-- the last two bits of the address are discarded so that the
@@ -150,6 +165,7 @@ begin
 		opcode => instruction(31 downto 26),
 		reg_dst => reg_dst,
 		reg_write => reg_write,
+		jump => jump,
 		branch => branch,
 		mem_read => mem_read,
 		mem_to_reg => mem_to_reg,

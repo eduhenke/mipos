@@ -31,5 +31,4 @@ registers_dict = {
     '$t9': 25,
     '$v0': 2,
     '$v1': 3,
-    '$zero': 0,
-    'zero': 100}
+    '$zero': 0}

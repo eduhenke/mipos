@@ -3,9 +3,11 @@ from parser.data.instructions import instructions
 from parser.data.registers import registers_dict
 
 def print_instruction(instr):
+    dec_parts = ' '.join([str(int(n, 2)) for n in instr["formatted"].split(' ')])
     print('-------------')
-    print('Instruction in Binary:', instr)
-    print('Instruction in Decimal:', int(instr, 2))
+    print('Instruction Parts:', instr["formatted"])
+    print('Instruction Parts(dec):', dec_parts)
+    print('Instruction in Decimal:', int(instr["binary"], 2))
 
 
 class AssemblerPrompt(Cmd):
