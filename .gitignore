@@ -47,6 +47,7 @@ timing
 *example*
 *sopc_*
 PLLJ_PLLSPE_INFO.txt # The generated PLL specification file
+.qsys_edit
 
 # Ignore ModelSim generated files
 *.mti

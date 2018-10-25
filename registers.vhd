@@ -11,6 +11,7 @@ entity registers is
 		N_REG: natural := 32
 	);
 	port (
+		clk: in std_logic;
 		sel_reg1, sel_reg2: in std_logic_vector(integer(ceil(log2(real(N_REG))))-1 downto 0);
 		reg1, reg2: out std_logic_vector(DATA_WIDTH-1 downto 0);
 		wr_data: in std_logic_vector(DATA_WIDTH-1 downto 0);
@@ -20,17 +21,27 @@ entity registers is
 end entity;
 
 architecture beh of registers is
-	type REGISTERS is array(N_REG-1 downto 0) of std_logic_vector(DATA_WIDTH-1 downto 0);
-	signal regs : REGISTERS;
+	type RegistersState is array(N_REG-1 downto 0) of std_logic_vector(DATA_WIDTH-1 downto 0);
+	signal nextState, currentState : RegistersState;
 begin
-	reg1 <= regs(to_integer(unsigned(sel_reg1)));
-	reg2 <= regs(to_integer(unsigned(sel_reg2)));
-	process(wr_en, wr_reg, wr_data)
+	-- next state logic (combinatorial)
+	nextState(0) <= (others => '0');
+	NSL: for i in 1 to N_REG-1 generate
+		nextState(i) <= wr_data when (wr_en='1' and i=to_integer(unsigned(wr_reg))) else
+							 currentState(i);
+	end generate NSL;
+
+	-- memory element (sequential)
+	ME: process (clk) is
 	begin
-		if wr_en='1' and unsigned(wr_reg)>0 then -- don't write to $zero register
-			regs(to_integer(unsigned(wr_reg))) <= wr_data;
-		else
-			regs(0) <= (others=>'0');
+		if rising_edge(clk) then
+			currentState <= nextState;
 		end if;
 	end process;
+	
+	-- output logic
+	reg1 <= currentState(to_integer(unsigned(sel_reg1))) when to_integer(unsigned(sel_reg1))>0 else
+			  (others => '0');
+	reg2 <= currentState(to_integer(unsigned(sel_reg2))) when to_integer(unsigned(sel_reg2))>0 else
+			  (others => '0');
 end architecture;

@@ -108,6 +108,7 @@ architecture beh of mipos is
 	
 	component registers is
 		port (
+			clk: in std_logic;
 			sel_reg1, sel_reg2: in std_logic_vector(4 downto 0);
 			reg1, reg2: out std_logic_vector(31 downto 0);
 			wr_data: in std_logic_vector(31 downto 0);
@@ -200,6 +201,7 @@ begin
 				  data_mem_out;
 				 
 	REG_BLK : registers port map (
+		clk => clk,
 		sel_reg1 => instruction(25 downto 21),
 		sel_reg2 => instruction(20 downto 16),
 		reg1 => reg1,
