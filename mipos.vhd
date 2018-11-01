@@ -10,7 +10,8 @@ use ieee.numeric_std.all;
 
 entity mipos is
 	port(
-		clk, clk_mem, rst: in std_logic
+		clk, clk_mem, rst: in std_logic;
+		PC_out, reg_t0, reg_t1: out std_logic_vector(31 downto 0)
 	);
 end mipos;
 
@@ -111,6 +112,7 @@ architecture beh of mipos is
 			clk: in std_logic;
 			sel_reg1, sel_reg2: in std_logic_vector(4 downto 0);
 			reg1, reg2: out std_logic_vector(31 downto 0);
+			reg_t0, reg_t1: out std_logic_vector(31 downto 0);
 			wr_data: in std_logic_vector(31 downto 0);
 			wr_reg: in std_logic_vector(4 downto 0);
 			wr_en: in std_logic
@@ -118,6 +120,10 @@ architecture beh of mipos is
 	end component;
 
 begin
+	-- output signals
+	PC_out <= curr_address;
+	
+	
 	opcode <= instruction(31 downto 26);
 	rs <= instruction(25 downto 21);
 	rt <= instruction(20 downto 16);
@@ -206,6 +212,8 @@ begin
 		sel_reg2 => instruction(20 downto 16),
 		reg1 => reg1,
 		reg2 => reg2,
+		reg_t0 => reg_t0,
+		reg_t1 => reg_t1,
 		wr_data =>  wr_reg_data,
 		wr_reg => wr_reg,
 		wr_en => reg_write

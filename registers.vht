@@ -7,6 +7,7 @@ end registers_tst;
 architecture beh of registers_tst is
 	signal sel_reg1, sel_reg2: std_logic_vector(4 downto 0);
 	signal reg1, reg2: std_logic_vector(31 downto 0);
+	signal reg_t0, reg_t1: out std_logic_vector(DATA_WIDTH-1 downto 0);
 	signal wr_data: std_logic_vector(31 downto 0);
 	signal wr_reg: std_logic_vector(4 downto 0);
 	signal wr_en: std_logic;
@@ -15,6 +16,7 @@ architecture beh of registers_tst is
 	port (
 		sel_reg1, sel_reg2: in std_logic_vector(4 downto 0);
 		reg1, reg2: out std_logic_vector(31 downto 0);
+		reg_t0, reg_t1: out std_logic_vector(31 downto 0);
 		wr_data: in std_logic_vector(31 downto 0);
 		wr_reg: in std_logic_vector(4 downto 0);
 		wr_en: in std_logic
@@ -26,6 +28,8 @@ begin
 		sel_reg2 => sel_reg2,
 		reg1 => reg1,
 		reg2 => reg2,
+		reg_t0 => reg_t0,
+		reg_t1 => reg_t1,
 		wr_data => wr_data,
 		wr_reg => wr_reg,
 		wr_en => wr_en

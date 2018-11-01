@@ -14,6 +14,7 @@ entity registers is
 		clk: in std_logic;
 		sel_reg1, sel_reg2: in std_logic_vector(integer(ceil(log2(real(N_REG))))-1 downto 0);
 		reg1, reg2: out std_logic_vector(DATA_WIDTH-1 downto 0);
+		reg_t0, reg_t1: out std_logic_vector(DATA_WIDTH-1 downto 0);
 		wr_data: in std_logic_vector(DATA_WIDTH-1 downto 0);
 		wr_reg: in std_logic_vector(integer(ceil(log2(real(N_REG))))-1 downto 0);
 		wr_en: in std_logic
@@ -44,4 +45,7 @@ begin
 			  (others => '0');
 	reg2 <= currentState(to_integer(unsigned(sel_reg2))) when to_integer(unsigned(sel_reg2))>0 else
 			  (others => '0');
+
+	reg_t0 <= currentState(8);
+	reg_t1 <= currentState(9); 
 end architecture;

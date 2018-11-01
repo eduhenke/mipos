@@ -11,10 +11,13 @@ constant T : time := 10 ns;
 signal clk : std_logic := '0';                               
 signal clk_mem : std_logic := '0';
 signal rst : std_logic := '1';
+signal PC_out, reg_t0, reg_t1: std_logic_vector(31 downto 0);
+
 component mipos
 	port (
 	clk, clk_mem : in std_logic;
-	rst : in std_logic
+	rst : in std_logic;
+	PC_out, reg_t0, reg_t1: out std_logic_vector(31 downto 0)
 	);
 end component;
 begin
@@ -33,7 +36,10 @@ begin
 	mipos_component : mipos port map(
 		clk => clk,
 		clk_mem => clk_mem,
-		rst => rst
+		rst => rst,
+		PC_out => PC_out,
+		reg_t0 => reg_t0,
+		reg_t1 => reg_t1
 	);
   
 end mipos_arch;
