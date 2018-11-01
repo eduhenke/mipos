@@ -10,10 +10,22 @@ def assemble(assembly_line):
     mnemonic = tokens[0]
     instruction = instructions[mnemonic]
 
+    def invert_bits(bin_num): # bin_num is str
+        return bin_num.replace('0', 'X').replace('1', '0').replace('X', '1')
+
+    def twos_complement(num, padding):
+        abs_num = to_bin(abs(num), padding)
+        inv_num = invert_bits(abs_num)
+        return int(inv_num, 2) + 1
+
+
     def to_bin(num, padding):
         if isinstance(num, str):
             num = int(num)
-        return bin(num)[2:].zfill(padding)    
+        if num < 0:
+            return to_bin(twos_complement(num, padding), padding)
+        else:
+            return bin(num)[2:].zfill(padding)    
 
     def lookup_registers(raw_registers):
         registers = [registers_dict[r] for r in raw_registers]
