@@ -27,11 +27,9 @@ begin
 	
 	reset: process
 	begin
-		wait for T;
+		wait for T/8;
 		rst <= '0';
 	end process;
-	
-	
 	
 	mipos_component : mipos port map(
 		clk => clk,
