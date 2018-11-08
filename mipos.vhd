@@ -43,13 +43,11 @@ architecture beh of mipos is
 	signal immediate_ext_shifted: std_logic_vector(31 downto 0); -- immediate converted to 32-bits(sign extended and shifted by 2-bits)
 	signal zero: std_logic;
 
-
-
-	component PC
+	component reg is
 		port (
 			clk, rst: in std_logic;
-			next_address: in std_logic_vector(31 downto 0);
-			curr_address: out std_logic_vector(31 downto 0)
+			new_value: in std_logic_vector(31 downto 0);
+			curr_value: out std_logic_vector(31 downto 0)
 		);
 	end component;
 	
@@ -58,7 +56,7 @@ architecture beh of mipos is
 		port (
 			a,b: in std_logic_vector(31 downto 0);
 			c: out std_logic_vector(31 downto 0)
-		);		
+		);
 	end component;
 	
 	component ROM
@@ -134,7 +132,7 @@ begin
 	next_address <= jump_address when jump='1' else
 						 beq_address when (branch='1' and zero='1') else
 						 PC_added;
-	PROG_CTR: PC port map (
+	PC: reg port map (
 		clk, rst, next_address, curr_address
 	); 
 
