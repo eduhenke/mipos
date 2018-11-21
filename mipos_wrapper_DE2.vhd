@@ -31,6 +31,7 @@ begin
 	);
 	rst <= SW(1);
 	clk <= SW(0);
+	
 	process(clk, rst)
 	begin
 		if rst='1' then
@@ -39,8 +40,9 @@ begin
 			mips_clk <= not mips_clk;
 		end if;
 	end process;
-	LEDR(6 downto 0) <= PC(6 downto 0);
-	LEDR(11 downto 7) <= reg_t0(4 downto 0);
-	LEDR(17 downto 12) <= PC(5 downto 0);
+	
+	LEDR(2 downto 0) <= PC(4 downto 2);
+	LEDR(6 downto 4) <= reg_t0(2 downto 0);
+	LEDR(17 downto 15) <= reg_t1(2 downto 0);
 	
 end mipos_arch;
