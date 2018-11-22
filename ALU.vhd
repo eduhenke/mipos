@@ -18,22 +18,9 @@ architecture beh of ALU is
 begin
 	zero <= '1' when unsigned(result)=0 else
 			  '0';
-	c <= result;
-	process(op, a, b)
-	begin
-		if op="010" then
-			result <= a + b;
-		elsif (op="110") then
-			result <= a - b;
-		elsif (op="111") then
-			result <= (others=>'0');
-			if a < b then
-				result(0) <= '1';
-			end if;
-		elsif op="001" then
-			result <= a or b;
-		else
-			result <= a and b;
-		end if;
-	end process;
+	c <= a + b when op="010" else
+		  a - b when op="110" else
+		  (0=>'1', others=>'0') when (op="111" and a < b) else
+		  a or b when op="001" else
+		  a and b;
 end architecture;
